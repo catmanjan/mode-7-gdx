@@ -1,4 +1,4 @@
-mode-7
+mode-7-gdx
 ======
 
-LibGDX based mode 7 graphics engine
+LibGDX based mode 7 engine
