@@ -2,7 +2,6 @@ package au.com.twosquared.mode7;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,9 +10,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Game implements ApplicationListener {
 
-	private OrthographicCamera camera;
-	private SpriteBatch batch;
-	private Mode7 mode7;
+	OrthographicCamera camera;
+	SpriteBatch batch;
+	Mode7 mode7;
 
 	@Override
 	public void create() {
@@ -23,18 +22,46 @@ public class Game implements ApplicationListener {
 
 		batch = new SpriteBatch();
 
-		mode7 = new Mode7(256, 256, Format.RGB888);
-		mode7.floor = new Pixmap(Gdx.files.internal("data/grass.png"));
-		mode7.camera.set(0, 0, 32);
+		Pixmap trackSprite = new Pixmap(Gdx.files.internal("data/track.png"));
+		Pixmap carSprite = new Pixmap(Gdx.files.internal("data/car.png"));
 
-		Pixmap tree = new Pixmap(Gdx.files.internal("data/tree.png"));
+		mode7 = new Mode7(256, 256, Format.RGB565);
+		mode7.camera.set(431, 345 + 16, 16);
+		mode7.horizon = 30;
+		mode7.angle = (float) (-Math.PI / 2);
+		mode7.floor = trackSprite;
 
-		for (int x = 0; x < 100; x++) {
-			Mode7Sprite sprite = new Mode7Sprite(tree);
-			sprite.position.x = (float) (Math.random() * 2000) - 1000;
-			sprite.position.y = (float) (Math.random() * 2000) - 1000;
-			mode7.sprites.add(sprite);
-		}
+		Mode7Sprite car = new Mode7Sprite(carSprite);
+		car.position.set(431, 345);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(431, 321);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(431, 297);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(431, 273);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(447, 333);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(447, 310);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(447, 285);
+		mode7.sprites.add(car);
+
+		car = new Mode7Sprite(carSprite);
+		car.position.set(447, 261);
+		mode7.sprites.add(car);
 	}
 
 	@Override
@@ -54,21 +81,10 @@ public class Game implements ApplicationListener {
 			float dy = h / 2 - y;
 			double rot = Math.atan2(dy, dx);
 
-			mode7.angle -= (float) Math.cos(rot) * delta;
-			mode7.horizon += 100f * (float) Math.sin(rot) * delta;
-		}
-
-		if (Gdx.input.isKeyPressed(Keys.W)) {
-			mode7.camera.x += 100f * (float) Math.cos(mode7.angle) * delta;
-			mode7.camera.y += 100f * (float) Math.sin(mode7.angle) * delta;
-		}
-
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			mode7.camera.z += 100f * delta;
-		}
-
-		if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) {
-			mode7.camera.z -= 100f * delta;
+			mode7.angle -= 1f * (float) Math.cos(rot) * delta;
+			mode7.horizon += 20f * (float) Math.sin(rot) * delta;
+			mode7.camera.x += 30f * (float) Math.cos(mode7.angle) * delta;
+			mode7.camera.y += 30f * (float) Math.sin(mode7.angle) * delta;
 		}
 	}
 

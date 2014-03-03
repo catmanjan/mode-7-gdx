@@ -16,10 +16,11 @@ public class Mode7 extends Pixmap {
 	public Pixmap floor;
 	public Texture texture;
 
-	public float horizon = 100;
-	public float angle = 0;
+	public float horizon;
+	public float angle;
 	public Vector3 camera;
 	public Vector2 scale;
+	public Vector2 objScale;
 	public List<Mode7Sprite> sprites;
 
 	public Mode7(int width, int height, Format format) {
@@ -29,11 +30,12 @@ public class Mode7 extends Pixmap {
 
 		camera = new Vector3(0, 0, 1);
 		scale = new Vector2(100, 100);
+		objScale = new Vector2(0.1f, 0.1f);
 		sprites = new ArrayList<Mode7Sprite>();
 	}
 
 	public void render(SpriteBatch batch) {
-		setColor(Color.BLACK);
+		setColor(Color.rgb565(135, 206, 235));
 		fill();
 
 		int width = getWidth();
@@ -42,26 +44,28 @@ public class Mode7 extends Pixmap {
 		double sin = Math.sin(angle);
 		double cos = Math.cos(angle);
 
-		for (int y = (int) horizon; y < height; y++) {
-			float distance = (camera.z * scale.y) / (y - horizon);
-			float ratio = distance / scale.x;
+		if (floor != null) {
+			for (int y = (int) horizon; y < height; y++) {
+				float distance = (camera.z * scale.y) / (y - horizon);
+				float ratio = distance / scale.x;
 
-			double dx = -sin * ratio;
-			double dy = cos * ratio;
+				double dx = -sin * ratio;
+				double dy = cos * ratio;
 
-			double sx = camera.x + distance * cos - width / 2 * dx;
-			double sy = camera.y + distance * sin - width / 2 * dy;
+				double sx = camera.x + distance * cos - width / 2 * dx;
+				double sy = camera.y + distance * sin - width / 2 * dy;
 
-			for (int x = 0; x < width; x++) {
-				int px = (int) Math.abs(sx % floor.getWidth());
-				int py = (int) Math.abs(sy % floor.getHeight());
-				int pixel = floor.getPixel(px, py);
+				for (int x = 0; x < width; x++) {
+					int cx = (int) Math.abs(sx % floor.getWidth());
+					int cy = (int) Math.abs(sy % floor.getHeight());
+					int color = floor.getPixel(cx, cy);
 
-				sx += dx;
-				sy += dy;
+					setColor(color);
+					drawPixel(x, y);
 
-				setColor(pixel);
-				drawPixel(x, y);
+					sx += dx;
+					sy += dy;
+				}
 			}
 		}
 
@@ -76,8 +80,8 @@ public class Mode7 extends Pixmap {
 
 			int sw = sprite.pixmap.getWidth();
 			int sh = sprite.pixmap.getHeight();
-			int w = (int) (sw * scale.x / sx);
-			int h = (int) (sh * scale.y / sx);
+			int w = (int) (sw * scale.x / sx * objScale.x);
+			int h = (int) (sh * scale.y / sx * objScale.y);
 
 			// Negative height, sprite is behind camera
 			if (h < 1) {
