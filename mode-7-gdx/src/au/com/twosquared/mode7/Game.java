@@ -22,9 +22,18 @@ public class Game implements ApplicationListener {
 
 		batch = new SpriteBatch();
 
-		mode7 = new Mode7(256, 256, Format.RGB565);
-		mode7.floor = new Pixmap(Gdx.files.internal("data/track.png"));
-		mode7.camera.set(256, 256, 128);
+		mode7 = new Mode7(256, 256, Format.RGB888);
+		mode7.floor = new Pixmap(Gdx.files.internal("data/grass.png"));
+		mode7.camera.set(0, 0, 16);
+
+		Pixmap tree = new Pixmap(Gdx.files.internal("data/tree.png"));
+
+		for (int x = 0; x < 1000; x++) {
+			Mode7Sprite sprite = new Mode7Sprite(tree);
+			sprite.position.x = (float) (Math.random() * 2000) - 1000;
+			sprite.position.y = (float) (Math.random() * 2000) - 1000;
+			mode7.sprites.add(sprite);
+		}
 	}
 
 	@Override
@@ -46,20 +55,15 @@ public class Game implements ApplicationListener {
 			double r = Math.atan2(dy, dx);
 
 			mode7.angle -= (float) Math.cos(r) * delta;
-			mode7.horizon += 40f * (float) Math.sin(r) * delta;
-			mode7.camera.z += 20f * (float) Math.sin(r) * delta;
+			mode7.horizon += 100f * (float) Math.sin(r) * delta;
 		}
-
-		mode7.camera.x += (float) Math.cos(mode7.angle) * 200f * delta;
-		mode7.camera.y += (float) Math.sin(mode7.angle) * 200f * delta;
-		mode7.update();
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(mode7.texture, 0, 0);
+		mode7.render(batch);
 		batch.end();
 	}
 

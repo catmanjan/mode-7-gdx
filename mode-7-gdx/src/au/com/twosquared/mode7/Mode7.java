@@ -1,14 +1,18 @@
 package au.com.twosquared.mode7;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class Mode7 extends Pixmap {
 
-	public Texture texture;
 	public Pixmap floor;
 
 	public float horizon = 100;
@@ -16,15 +20,20 @@ public class Mode7 extends Pixmap {
 	public Vector3 camera;
 	public Vector2 scale;
 
+	public List<Mode7Sprite> sprites;
+
 	public Mode7(int width, int height, Format format) {
 		super(width, height, format);
 
-		texture = new Texture(this, format, false);
 		camera = new Vector3(0, 0, 1);
 		scale = new Vector2(200, 200);
+
+		sprites = new ArrayList<Mode7Sprite>();
+
+		setFilter(Filter.NearestNeighbour);
 	}
 
-	public void update() {
+	public void render(SpriteBatch batch) {
 		setColor(Color.BLACK);
 		fill();
 
@@ -57,6 +66,53 @@ public class Mode7 extends Pixmap {
 			}
 		}
 
-		texture = new Texture(this, getFormat(), false);
+		List<Mode7Sprite> visible = new ArrayList<Mode7Sprite>();
+
+		for (Mode7Sprite sprite : sprites) {
+			double dx = sprite.position.x - camera.x;
+			double dy = sprite.position.y - camera.y;
+
+			double sx = dx * cos + dy * sin;
+			double sy = dy * cos - dx * sin;
+
+			int sw = sprite.pixmap.getWidth();
+			int sh = sprite.pixmap.getHeight();
+			int w = (int) (sw * scale.x / sx);
+			int h = (int) (sh * scale.y / sx);
+
+			// Negative height, sprite is behind camera
+			if (h < 1) {
+				continue;
+			}
+
+			int x = (int) (scale.x / sx * sy) + width / 2;
+			int y = (int) ((camera.z * scale.y) / sx + horizon);
+
+			// Align sprite center-bottom
+			sprite.screen.x = x - w / 2;
+			sprite.screen.y = y - h;
+			sprite.size.x = w;
+			sprite.size.y = h;
+			sprite.sort = y;
+
+			visible.add(sprite);
+		}
+
+		Collections.sort(visible);
+
+		for (Mode7Sprite sprite : visible) {
+			int sw = sprite.pixmap.getWidth();
+			int sh = sprite.pixmap.getHeight();
+			int x = (int) sprite.screen.x;
+			int y = (int) sprite.screen.y;
+			int w = (int) sprite.size.x;
+			int h = (int) sprite.size.y;
+
+			drawPixmap(sprite.pixmap, 0, 0, sw, sh, x, y, w, h);
+		}
+
+		Texture texture = new Texture(this, getFormat(), true);
+
+		batch.draw(texture, 0, 0);
 	}
 }
