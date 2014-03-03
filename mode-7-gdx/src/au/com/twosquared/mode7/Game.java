@@ -2,6 +2,7 @@ package au.com.twosquared.mode7;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -24,11 +25,11 @@ public class Game implements ApplicationListener {
 
 		mode7 = new Mode7(256, 256, Format.RGB888);
 		mode7.floor = new Pixmap(Gdx.files.internal("data/grass.png"));
-		mode7.camera.set(0, 0, 16);
+		mode7.camera.set(0, 0, 32);
 
 		Pixmap tree = new Pixmap(Gdx.files.internal("data/tree.png"));
 
-		for (int x = 0; x < 1000; x++) {
+		for (int x = 0; x < 100; x++) {
 			Mode7Sprite sprite = new Mode7Sprite(tree);
 			sprite.position.x = (float) (Math.random() * 2000) - 1000;
 			sprite.position.y = (float) (Math.random() * 2000) - 1000;
@@ -41,8 +42,7 @@ public class Game implements ApplicationListener {
 		batch.dispose();
 	}
 
-	@Override
-	public void render() {
+	private void input() {
 		float delta = Gdx.graphics.getDeltaTime();
 		float x = Gdx.input.getX();
 		float y = Gdx.input.getY();
@@ -52,11 +52,29 @@ public class Game implements ApplicationListener {
 		if (Gdx.input.isTouched()) {
 			float dx = w / 2 - x;
 			float dy = h / 2 - y;
-			double r = Math.atan2(dy, dx);
+			double rot = Math.atan2(dy, dx);
 
-			mode7.angle -= (float) Math.cos(r) * delta;
-			mode7.horizon += 100f * (float) Math.sin(r) * delta;
+			mode7.angle -= (float) Math.cos(rot) * delta;
+			mode7.horizon += 100f * (float) Math.sin(rot) * delta;
 		}
+
+		if (Gdx.input.isKeyPressed(Keys.W)) {
+			mode7.camera.x += 100f * (float) Math.cos(mode7.angle) * delta;
+			mode7.camera.y += 100f * (float) Math.sin(mode7.angle) * delta;
+		}
+
+		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+			mode7.camera.z += 100f * delta;
+		}
+
+		if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) {
+			mode7.camera.z -= 100f * delta;
+		}
+	}
+
+	@Override
+	public void render() {
+		input();
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);

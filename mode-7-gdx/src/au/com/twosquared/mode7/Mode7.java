@@ -14,23 +14,22 @@ import com.badlogic.gdx.math.Vector3;
 public class Mode7 extends Pixmap {
 
 	public Pixmap floor;
+	public Texture texture;
 
 	public float horizon = 100;
 	public float angle = 0;
 	public Vector3 camera;
 	public Vector2 scale;
-
 	public List<Mode7Sprite> sprites;
 
 	public Mode7(int width, int height, Format format) {
 		super(width, height, format);
 
-		camera = new Vector3(0, 0, 1);
-		scale = new Vector2(200, 200);
-
-		sprites = new ArrayList<Mode7Sprite>();
-
 		setFilter(Filter.NearestNeighbour);
+
+		camera = new Vector3(0, 0, 1);
+		scale = new Vector2(100, 100);
+		sprites = new ArrayList<Mode7Sprite>();
 	}
 
 	public void render(SpriteBatch batch) {
@@ -111,7 +110,7 @@ public class Mode7 extends Pixmap {
 			drawPixmap(sprite.pixmap, 0, 0, sw, sh, x, y, w, h);
 		}
 
-		Texture texture = new Texture(this, getFormat(), true);
+		texture = new Texture(this, getFormat(), true);
 
 		batch.draw(texture, 0, 0);
 	}
